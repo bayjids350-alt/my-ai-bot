@@ -37,7 +37,7 @@ else:
 if "current_mode" not in st.session_state or st.session_state.current_mode != bot_mode:
     st.session_state.current_mode = bot_mode
     model = genai.GenerativeModel(
-        model_name="models/gemini-1.5-flash",
+        model_name="gemini-2.5-flash",
         system_instruction=system_instruction
     )
     st.session_state.chat_session = model.start_chat(history=[])
