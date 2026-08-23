@@ -33,20 +33,24 @@ else:
     st.caption("Your assistant for general questions, chats, and guidance.")
     system_instruction = "You are a helpful, polite, and friendly AI assistant. Always respond in English clearly."
 
-# Mode switch handle
+# Initialize Chat Session
 if "current_mode" not in st.session_state or st.session_state.current_mode != bot_mode:
     st.session_state.current_mode = bot_mode
-    model = genai.GenerativeModel(
-        model_name="gemini-2.5-flash",
-        system_instruction=system_instruction
-    )
-    st.session_state.chat_session = model.start_chat(history=[])
+    try:
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            system_instruction=system_instruction
+        )
+        st.session_state.chat_session = model.start_chat(history=[])
+    except Exception as e:
+        st.error(f"Error initializing model: {e}")
 
 # Display Chat History
-for message in st.session_state.chat_session.history:
-    role = "user" if message.role == "user" else "assistant"
-    with st.chat_message(role):
-        st.markdown(message.parts[0].text)
+if "chat_session" in st.session_state:
+    for message in st.session_state.chat_session.history:
+        role = "user" if message.role == "user" else "assistant"
+        with st.chat_message(role):
+            st.markdown(message.parts[0].text)
 
 # User Input Box
 if user_prompt := st.chat_input("Type your message here..."):
@@ -54,6 +58,6 @@ if user_prompt := st.chat_input("Type your message here..."):
         st.markdown(user_prompt)
 
     with st.chat_message("assistant"):
-        response = st.session_state.chat_session.send_message(user_prompt)
-        st.markdown(response.text)
-        
+        if "chat_session" in st.session_state:
+            response = st.session_state.chat_session.send_message(user_prompt)
+            st.markdown(response.text)
